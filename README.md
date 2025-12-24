@@ -2,6 +2,8 @@
 
 A desktop application for managing stock portfolios with target allocation percentages and rebalancing recommendations.
 
+![Stock Portfolio Balancer Screenshot](product_screenshot.png)
+
 ## Features
 
 - **Portfolio Management**: Add, edit, and remove stock holdings

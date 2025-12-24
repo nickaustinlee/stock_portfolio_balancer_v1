@@ -374,19 +374,19 @@ class ThemeManager:
         Load theme preference from file.
         
         Returns:
-            The saved theme name, defaults to "light" if not found
+            The saved theme name, defaults to "dark" if not found
         """
         try:
             if os.path.exists(self.preferences_file):
                 with open(self.preferences_file, 'r', encoding='utf-8') as f:
                     preferences = json.load(f)
-                    theme = preferences.get("theme", "light")
-                    return theme if theme in ["light", "dark"] else "light"
+                    theme = preferences.get("theme", "dark")
+                    return theme if theme in ["light", "dark"] else "dark"
         except (OSError, IOError, json.JSONDecodeError):
             # Return default theme if file can't be read or is corrupted
             pass
             
-        return "light"
+        return "dark"
         
     def apply_theme_to_application(self, root_widget: Any) -> None:
         """
