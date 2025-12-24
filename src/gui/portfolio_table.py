@@ -7,6 +7,7 @@ import tkinter as tk
 from tkinter import ttk
 from typing import Dict, List, Optional, Callable, Any
 from decimal import Decimal, InvalidOperation
+from utils.debug import logger
 
 
 class PortfolioTable(ttk.Frame):
@@ -36,6 +37,10 @@ class PortfolioTable(ttk.Frame):
         
         # Data storage
         self.holdings_data: Dict[str, Dict[str, Any]] = {}
+        
+        # Sorting state
+        self.sort_column = None
+        self.sort_reverse = False
         
         # UI components
         self.tree = None
@@ -105,10 +110,14 @@ class PortfolioTable(ttk.Frame):
         # Configure columns
         for i, (col_id, col_name, col_width, editable) in enumerate(self.COLUMNS):
             if i == 0:  # Ticker column (tree column)
-                self.tree.heading('#0', text=col_name, anchor=tk.W)
+                self.tree.heading('#0', text=col_name, anchor=tk.W, command=lambda: self._sort_by_column('ticker'))
                 self.tree.column('#0', width=col_width, minwidth=50)
             else:
-                self.tree.heading(col_id, text=col_name, anchor=tk.CENTER)
+                # Add sorting command to numerical/percentage columns
+                if col_id in ['price', 'quantity', 'target_allocation', 'current_allocation', 'current_value', 'target_value', 'difference', 'rebalance_action']:
+                    self.tree.heading(col_id, text=col_name, anchor=tk.CENTER, command=lambda c=col_id: self._sort_by_column(c))
+                else:
+                    self.tree.heading(col_id, text=col_name, anchor=tk.CENTER)
                 self.tree.column(col_id, width=col_width, minwidth=80, anchor=tk.E)
         
         # Create scrollbars
@@ -230,23 +239,110 @@ class PortfolioTable(ttk.Frame):
     def _handle_cell_edit(self, ticker: str, column: str, new_value: str):
         """Handle cell edit completion."""
         try:
+            logger.debug("Editing %s for %s with value '%s'", column, ticker, new_value)
+            
             if column == 'quantity':
                 quantity = float(new_value)
+                logger.debug("Parsed quantity: %s", quantity)
                 if quantity <= 0:
                     raise ValueError("Quantity must be positive")
                 if self.on_quantity_changed:
                     self.on_quantity_changed(ticker, quantity)
                     
             elif column == 'target_allocation':
-                allocation = float(new_value)
+                # Handle percentage input - remove % sign if present
+                clean_value = new_value.strip().rstrip('%')
+                logger.debug("Cleaned allocation value: '%s'", clean_value)
+                allocation = float(clean_value)
+                logger.debug("Parsed allocation: %s", allocation)
                 if allocation < 0 or allocation > 100:
                     raise ValueError("Allocation must be between 0 and 100")
                 if self.on_target_allocation_changed:
+                    logger.debug("Calling on_target_allocation_changed(%s, %s)", ticker, allocation)
                     self.on_target_allocation_changed(ticker, allocation)
                     
-        except ValueError:
-            # Invalid input, ignore the change
-            pass
+        except ValueError as e:
+            logger.debug("ValueError in _handle_cell_edit: %s", e)
+            # Show error to user instead of silently ignoring
+            import tkinter.messagebox as messagebox
+            messagebox.showerror("Invalid Input", f"Error updating {column}: {str(e)}")
+            # Refresh the display to revert the invalid change
+            if hasattr(self, 'holdings_data'):
+                self.update_holdings(self.holdings_data)
+        except Exception as e:
+            logger.error("Unexpected error in _handle_cell_edit: %s", e)
+            import traceback
+            traceback.print_exc()
+            raise
+    
+    def _sort_by_column(self, column: str):
+        """Sort the table by the specified column."""
+        logger.debug("Sorting by column: %s", column)
+        
+        # Toggle sort direction if clicking the same column
+        if self.sort_column == column:
+            self.sort_reverse = not self.sort_reverse
+        else:
+            self.sort_column = column
+            self.sort_reverse = False
+        
+        # Update column header to show sort direction
+        self._update_sort_indicators()
+        
+        # Sort the data and refresh display
+        self._sort_and_refresh()
+    
+    def _update_sort_indicators(self):
+        """Update column headers to show sort direction."""
+        for i, (col_id, col_name, _, _) in enumerate(self.COLUMNS):
+            if i == 0:  # Ticker column
+                header_text = col_name
+                if self.sort_column == 'ticker':
+                    header_text += " ↓" if self.sort_reverse else " ↑"
+                self.tree.heading('#0', text=header_text)
+            else:
+                header_text = col_name
+                if self.sort_column == col_id:
+                    header_text += " ↓" if self.sort_reverse else " ↑"
+                self.tree.heading(col_id, text=header_text)
+    
+    def _sort_and_refresh(self):
+        """Sort holdings data and refresh the display."""
+        if not self.holdings_data or not self.sort_column:
+            return
+        
+        # Create list of (ticker, data) tuples for sorting
+        items = list(self.holdings_data.items())
+        
+        # Define sort key function
+        def get_sort_key(item):
+            ticker, data = item
+            if self.sort_column == 'ticker':
+                return ticker.lower()
+            
+            value = data.get(self.sort_column, 0)
+            
+            # Handle different data types
+            if isinstance(value, str):
+                # For rebalance_action, extract numeric value
+                if self.sort_column == 'rebalance_action':
+                    if value.startswith('Buy ') or value.startswith('Sell '):
+                        try:
+                            return float(value.split()[1])
+                        except (IndexError, ValueError):
+                            return 0
+                return value.lower()
+            
+            return float(value) if value is not None else 0
+        
+        # Sort the items
+        items.sort(key=get_sort_key, reverse=self.sort_reverse)
+        
+        # Rebuild holdings_data in sorted order
+        sorted_data = {ticker: data for ticker, data in items}
+        
+        # Update display with sorted data
+        self.update_holdings(sorted_data)
             
     def update_holdings(self, holdings_data: Dict[str, Dict[str, Any]]):
         """Update the table with new holdings data."""

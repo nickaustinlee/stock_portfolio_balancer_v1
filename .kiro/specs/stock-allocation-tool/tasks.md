@@ -102,78 +102,78 @@ This implementation plan converts the stock allocation tool design into discrete
     - **Property 4: UI Functionality During Invalid States**
     - **Validates: Requirements 2.3, 7.2, 7.5**
 
-- [ ] 8. Implement error handling and user feedback
-  - [ ] 8.1 Create ErrorDialog class
+- [x] 8. Implement error handling and user feedback
+  - [x] 8.1 Create ErrorDialog class
     - Implement dismissible error message dialogs
     - Add different error types with appropriate messaging
     - Ensure errors don't block other functionality
     - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5_
 
-  - [ ] 8.2 Integrate error handling throughout application
+  - [x] 8.2 Integrate error handling throughout application
     - Add try-catch blocks around API calls and file operations
     - Connect error conditions to user-friendly messages
     - Implement graceful degradation for various error scenarios
     - _Requirements: 3.3, 8.6_
 
-- [ ] 9. Add auto-refresh functionality
-  - [ ] 9.1 Implement auto-refresh timer system
+- [x] 9. Add auto-refresh functionality
+  - [x] 9.1 Implement auto-refresh timer system
     - Create background timer for 60-second price updates
     - Add toggle functionality to enable/disable auto-refresh
     - Ensure auto-refresh defaults to disabled
     - _Requirements: 5.2, 5.3, 5.4_
 
-  - [ ] 9.2 Write property test for auto-refresh state management
+  - [x] 9.2 Write property test for auto-refresh state management
     - **Property 8: Auto-refresh State Management**
     - **Validates: Requirements 5.4**
 
-  - [ ] 9.3 Write property test for manual refresh functionality
+  - [x] 9.3 Write property test for manual refresh functionality
     - **Property 7: Manual Refresh Functionality**
     - **Validates: Requirements 4.1, 4.4, 4.5**
 
-- [ ] 10. Add dark mode theme support
-  - [ ] 10.1 Implement ThemeManager class
+- [x] 10. Add dark mode theme support
+  - [x] 10.1 Implement ThemeManager class
     - Create theme management service with light and dark color schemes
     - Add methods for applying themes to UI elements and persisting preferences
     - Implement immediate theme switching without restart
     - _Requirements: 10.2, 10.3, 10.4, 10.5, 10.6, 10.7_
 
-  - [ ] 10.2 Write property test for dark mode theme consistency
+  - [x] 10.2 Write property test for dark mode theme consistency
     - **Property 13: Dark Mode Theme Consistency**
     - **Validates: Requirements 10.3, 10.4, 10.6, 10.7**
 
-- [ ] 11. Add CSV export functionality
-  - [ ] 11.1 Implement CSVExporter class
+- [x] 11. Add CSV export functionality
+  - [x] 11.1 Implement CSVExporter class
     - Create CSV export service with timestamped filename generation
     - Add methods for formatting portfolio data and writing CSV files
     - Implement error handling for file system issues
     - _Requirements: 11.2, 11.3, 11.4, 11.6, 11.7_
 
-  - [ ] 11.2 Write property test for CSV export accuracy
+  - [x] 11.2 Write property test for CSV export accuracy
     - **Property 14: CSV Export Accuracy**
     - **Validates: Requirements 11.2, 11.3, 11.4**
 
-- [ ] 12. Final integration and polish
-  - [ ] 12.1 Wire all components together
+- [x] 12. Final integration and polish
+  - [x] 12.1 Wire all components together
     - Connect controller to GUI, data models, and services
     - Implement application startup and shutdown procedures
     - Add data loading on startup and saving on changes
     - _Requirements: 12.2, 1.5_
 
-  - [ ] 12.2 Add visual feedback and status indicators
+  - [x] 12.2 Add visual feedback and status indicators
     - Implement loading indicators for refresh operations
     - Add status bar with last refresh timestamp
     - Show allocation total and over/under 100% indicators
     - _Requirements: 4.3, 4.4, 2.2_
 
-  - [ ] 12.3 Write property test for price data persistence and display
+  - [x] 12.3 Write property test for price data persistence and display
     - **Property 6: Price Data Persistence and Display**
     - **Validates: Requirements 3.4, 3.5**
 
-  - [ ] 12.4 Write property test for rebalance action direction and rounding
+  - [x] 12.4 Write property test for rebalance action direction and rounding
     - **Property 10: Rebalance Action Direction and Rounding**
     - **Validates: Requirements 6.6, 6.7, 6.8, 6.9, 6.10**
 
-- [ ] 13. Final checkpoint - Complete application
+- [x] 13. Final checkpoint - Complete application
   - Ensure all tests pass, ask the user if questions arise.
 
 ## Notes

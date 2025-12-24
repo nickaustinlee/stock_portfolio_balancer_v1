@@ -423,3 +423,166 @@ def test_invalid_target_allocation_validation():
     assert portfolio.validate_target_allocation_range(100.0) == True
     assert portfolio.validate_target_allocation_range(-0.1) == False
     assert portfolio.validate_target_allocation_range(100.1) == False
+
+
+@given(
+    ticker=ticker_strategy,
+    quantity=quantity_strategy,
+    target_allocation=allocation_strategy,
+    price=price_strategy,
+    total_portfolio_value=st.floats(min_value=1.0, max_value=1000000.0, allow_nan=False, allow_infinity=False),
+    share_rounding_enabled=st.booleans()
+)
+def test_rebalance_action_direction_and_rounding(ticker, quantity, target_allocation, price, total_portfolio_value, share_rounding_enabled):
+    """
+    Property 10: Rebalance Action Direction and Rounding
+    For any calculated rebalance action, positive values should indicate buy recommendations, 
+    negative values should indicate sell recommendations, zero target allocations should 
+    recommend selling all shares, and the display should respect the share rounding toggle setting.
+    **Validates: Requirements 6.6, 6.7, 6.8, 6.9, 6.10**
+    """
+    # Create holding
+    holding = Holding(ticker, quantity, target_allocation)
+    holding.update_price(price)
+    
+    # Calculate values
+    current_value = holding.get_current_value()
+    target_value = holding.get_target_value(total_portfolio_value)
+    difference = target_value - current_value
+    
+    # Get rebalance action
+    rebalance_action = holding.get_rebalance_action(total_portfolio_value, share_rounding_enabled)
+    
+    # Test direction requirements (Requirements 6.8, 6.9)
+    if target_value > current_value:
+        # Should recommend buying shares (positive action) (Requirement 6.8)
+        assert rebalance_action >= 0, f"Expected positive rebalance action for buy recommendation, got {rebalance_action}"
+        
+        # If difference is significant and will definitely round to positive, action should be clearly positive
+        expected_shares = difference / price
+        if share_rounding_enabled:
+            if expected_shares > 0.5:  # Will round to at least 1 share (accounting for banker's rounding)
+                assert rebalance_action > 0, f"Expected clearly positive action for significant buy recommendation"
+        else:
+            if difference > price * 0.01:  # More than 0.01 shares worth of difference
+                assert rebalance_action > 0, f"Expected clearly positive action for significant buy recommendation"
+            
+    elif target_value < current_value:
+        # Should recommend selling shares (negative action) (Requirement 6.9)
+        assert rebalance_action <= 0, f"Expected negative rebalance action for sell recommendation, got {rebalance_action}"
+        
+        # If difference is significant and will definitely round to negative, action should be clearly negative
+        expected_shares = difference / price
+        if share_rounding_enabled:
+            if expected_shares < -0.5:  # Will round to at least -1 share (accounting for banker's rounding)
+                assert rebalance_action < 0, f"Expected clearly negative action for significant sell recommendation"
+        else:
+            if abs(difference) > price * 0.01:  # More than 0.01 shares worth of difference
+                assert rebalance_action < 0, f"Expected clearly negative action for significant sell recommendation"
+    
+    # Test rounding behavior (Requirements 6.6, 6.7)
+    if share_rounding_enabled:
+        # When rounding is enabled, result should be whole shares (Requirement 6.6)
+        assert rebalance_action == round(rebalance_action), f"Expected whole shares when rounding enabled, got {rebalance_action}"
+        assert isinstance(rebalance_action, (int, float)) and rebalance_action == int(rebalance_action)
+    else:
+        # When rounding is disabled, result should be exact fractional shares (Requirement 6.7)
+        expected_exact_action = difference / price
+        assert abs(rebalance_action - expected_exact_action) < 0.0001, f"Expected exact fractional shares when rounding disabled"
+    
+    # Test mathematical consistency
+    expected_shares_needed = difference / price
+    if share_rounding_enabled:
+        expected_rounded = round(expected_shares_needed)
+        assert rebalance_action == expected_rounded
+    else:
+        assert abs(rebalance_action - expected_shares_needed) < 0.0001
+
+
+@given(
+    ticker=ticker_strategy,
+    quantity=quantity_strategy,
+    price=price_strategy,
+    total_portfolio_value=st.floats(min_value=1.0, max_value=1000000.0, allow_nan=False, allow_infinity=False),
+    share_rounding_enabled=st.booleans()
+)
+def test_zero_target_allocation_sells_all_shares_property(ticker, quantity, price, total_portfolio_value, share_rounding_enabled):
+    """
+    Property 10: Rebalance Action Direction and Rounding - Zero target allocation
+    When target allocation is zero, the system should recommend selling all shares.
+    **Validates: Requirements 6.10**
+    """
+    # Create holding with zero target allocation
+    holding = Holding(ticker, quantity, 0.0)  # Zero target allocation
+    holding.update_price(price)
+    
+    # Calculate rebalance action
+    rebalance_action = holding.get_rebalance_action(total_portfolio_value, share_rounding_enabled)
+    
+    # Should recommend selling all shares (Requirement 6.10)
+    if share_rounding_enabled:
+        # With rounding, should sell the rounded amount based on the calculation
+        target_value = 0.0  # Zero target allocation
+        current_value = quantity * price
+        difference = target_value - current_value  # Will be negative
+        expected_shares_action = difference / price  # Will be negative
+        expected_action = round(expected_shares_action)
+        assert rebalance_action == expected_action, f"Expected to sell {expected_action} shares (rounded), got {rebalance_action}"
+    else:
+        # Without rounding, should sell exactly the current quantity
+        expected_action = -quantity
+        assert abs(rebalance_action - expected_action) < 0.0001, f"Expected to sell {expected_action} shares (exact), got {rebalance_action}"
+    
+    # Action should always be negative or zero (selling)
+    assert rebalance_action <= 0, f"Expected negative or zero action for zero target allocation, got {rebalance_action}"
+    
+    # If quantity is positive and rounding doesn't round to zero, action should be negative
+    if quantity > 0:
+        target_value = 0.0
+        current_value = quantity * price
+        difference = target_value - current_value
+        expected_shares_action = difference / price
+        
+        if share_rounding_enabled:
+            expected_rounded = round(expected_shares_action)
+            if expected_rounded != 0:
+                assert rebalance_action < 0, f"Expected negative action when rounded result is non-zero, got {rebalance_action}"
+        else:
+            assert rebalance_action < 0, f"Expected negative action when selling positive quantity (exact), got {rebalance_action}"
+
+
+@given(
+    ticker=ticker_strategy,
+    quantity=quantity_strategy,
+    price=price_strategy,
+    total_portfolio_value=st.floats(min_value=1.0, max_value=1000000.0, allow_nan=False, allow_infinity=False)
+)
+def test_rounding_toggle_consistency(ticker, quantity, price, total_portfolio_value):
+    """
+    Property 10: Rebalance Action Direction and Rounding - Toggle consistency
+    The same holding should produce different results based on rounding setting.
+    **Validates: Requirements 6.6, 6.7**
+    """
+    # Use a target allocation that will likely produce fractional shares
+    target_allocation = 33.33  # This often produces fractional results
+    
+    holding = Holding(ticker, quantity, target_allocation)
+    holding.update_price(price)
+    
+    # Get both rounded and exact results
+    rounded_action = holding.get_rebalance_action(total_portfolio_value, True)
+    exact_action = holding.get_rebalance_action(total_portfolio_value, False)
+    
+    # Rounded result should be a whole number (Requirement 6.6)
+    assert rounded_action == round(rounded_action), f"Rounded action should be whole number, got {rounded_action}"
+    
+    # Exact result should match mathematical calculation (Requirement 6.7)
+    target_value = holding.get_target_value(total_portfolio_value)
+    current_value = holding.get_current_value()
+    expected_exact = (target_value - current_value) / price
+    assert abs(exact_action - expected_exact) < 0.0001, f"Exact action should match calculation, expected {expected_exact}, got {exact_action}"
+    
+    # If the exact calculation is not already a whole number, results should differ
+    if abs(expected_exact - round(expected_exact)) > 0.001:
+        assert rounded_action != exact_action, f"Rounded and exact actions should differ for fractional calculations"
+        assert rounded_action == round(expected_exact), f"Rounded action should equal rounded exact calculation"

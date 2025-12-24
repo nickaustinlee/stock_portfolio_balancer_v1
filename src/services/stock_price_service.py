@@ -71,6 +71,9 @@ class StockPriceService:
                 'info': info
             }
             
+            # Update last refresh timestamp
+            self.last_refresh = datetime.now()
+            
             return float(current_price)
             
         except Exception as e:

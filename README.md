@@ -49,6 +49,27 @@ Run the application:
 python src/main.py
 ```
 
+**Debug Mode:**
+For troubleshooting and development, enable debug mode for verbose logging:
+```bash
+# Using command line flag
+python src/main.py --debug
+# or
+python src/main.py -d
+
+# Using environment variable
+STOCK_TOOL_DEBUG=1 python src/main.py
+```
+
+### Troubleshooting
+
+**If you get a "ModuleNotFoundError: No module named '_tkinter'" error:**
+
+- **macOS**: `brew install python-tk` (if using Homebrew Python)
+- **Ubuntu/Debian**: `sudo apt-get install python3-tk`
+- **Windows**: tkinter should be included with standard Python installation
+- **Alternative**: Use the system Python instead of a virtual environment Python
+
 ### Basic Workflow
 
 1. **Add Holdings**: Enter ticker symbol and quantity, click "Add"
@@ -64,6 +85,13 @@ python src/main.py
 - **Round to whole shares**: Toggle between whole shares and fractional shares in recommendations
 - **Dark mode**: Switch between light and dark themes
 - **Export to CSV**: Export current portfolio data to timestamped CSV file
+
+### New Features
+
+- **Total Portfolio Value**: Displayed at the bottom of the interface showing the sum of all holdings
+- **Column Sorting**: Click any numerical column header to sort (Price, Quantity, Target %, etc.). Click again to reverse sort direction. Headers show ↑/↓ arrows to indicate sort direction
+- **Enhanced Input**: Target allocation accepts both "50" and "50%" formats
+- **Debug Mode**: Enable verbose logging for troubleshooting with `--debug` flag or `STOCK_TOOL_DEBUG=1` environment variable
 
 ## Architecture
 

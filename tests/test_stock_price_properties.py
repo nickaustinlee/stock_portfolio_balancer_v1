@@ -398,3 +398,74 @@ def test_error_handling_empty_ticker_list():
 
 # Import pandas for the fallback history test
 import pandas as pd
+from datetime import datetime
+
+
+@given(
+    ticker=valid_ticker_strategy,
+    mock_price=price_strategy,
+    quantity=st.floats(min_value=0.1, max_value=1000.0, allow_nan=False, allow_infinity=False)
+)
+def test_price_data_persistence_and_display(ticker, mock_price, quantity):
+    """
+    Property 6: Price Data Persistence and Display
+    For any successful price fetch, the system should store the timestamp and 
+    display current price information alongside holdings data.
+    **Validates: Requirements 3.4, 3.5**
+    """
+    from models.holding import Holding
+    from models.portfolio import Portfolio
+    
+    service = StockPriceService()
+    
+    # Mock successful price fetch
+    with patch('yfinance.Ticker') as mock_ticker_class:
+        mock_ticker = MagicMock()
+        mock_ticker.info = {'currentPrice': mock_price}
+        mock_ticker_class.return_value = mock_ticker
+        
+        # Fetch price (Requirement 3.4)
+        fetched_price = service.get_current_price(ticker)
+        
+        # Verify price is correct
+        assert fetched_price == mock_price
+        
+        # Verify timestamp is stored (Requirement 3.4)
+        cache_timestamp = service.get_cache_timestamp(ticker)
+        assert cache_timestamp is not None
+        assert isinstance(cache_timestamp, datetime)
+        
+        # Verify timestamp is recent (within last few seconds)
+        time_diff = datetime.now() - cache_timestamp
+        assert time_diff.total_seconds() < 5.0
+        
+        # Create holding with fetched price
+        holding = Holding(ticker=ticker, quantity=quantity)
+        holding.current_price = fetched_price
+        holding.last_updated = cache_timestamp
+        
+        # Verify price information is available for display (Requirement 3.5)
+        assert holding.current_price == mock_price
+        assert holding.last_updated == cache_timestamp
+        
+        # Test portfolio-level display data
+        portfolio = Portfolio()
+        portfolio.add_holding(holding)
+        
+        # Verify price data is accessible through portfolio
+        retrieved_holding = portfolio.get_holding(ticker)
+        assert retrieved_holding is not None
+        assert retrieved_holding.current_price == mock_price
+        assert retrieved_holding.last_updated == cache_timestamp
+        
+        # Verify current value calculation uses the fetched price
+        expected_value = quantity * mock_price
+        assert abs(retrieved_holding.get_current_value() - expected_value) < 0.01
+        
+        # Verify service maintains last refresh timestamp (Requirement 3.4)
+        assert service.last_refresh is not None
+        assert isinstance(service.last_refresh, datetime)
+        
+        # Verify cached price is accessible for future display
+        cached_price = service.get_cached_price(ticker)
+        assert cached_price == mock_price

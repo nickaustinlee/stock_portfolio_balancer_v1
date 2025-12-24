@@ -68,6 +68,14 @@ class MainWindow:
         )
         self.refresh_button.grid(row=0, column=0, padx=(0, 10))
         
+        # Loading indicator (initially hidden)
+        self.loading_label = ttk.Label(
+            control_frame,
+            text="⟳ Refreshing...",
+            foreground="blue"
+        )
+        # Don't grid it initially - will be shown/hidden as needed
+        
         # Auto-refresh toggle
         auto_refresh_check = ttk.Checkbutton(
             control_frame,
@@ -136,6 +144,15 @@ class MainWindow:
         )
         self.status_label.grid(row=0, column=0, sticky=(tk.W, tk.E))
         
+        # Total portfolio value label
+        self.total_value_label = ttk.Label(
+            self.status_frame,
+            text="Total portfolio value: $0.00",
+            relief=tk.SUNKEN,
+            anchor=tk.CENTER
+        )
+        self.total_value_label.grid(row=0, column=1, sticky=(tk.W, tk.E), padx=(5, 5))
+        
         # Last refresh timestamp
         self.last_refresh_label = ttk.Label(
             self.status_frame,
@@ -143,11 +160,12 @@ class MainWindow:
             relief=tk.SUNKEN,
             anchor=tk.E
         )
-        self.last_refresh_label.grid(row=0, column=1, sticky=(tk.W, tk.E))
+        self.last_refresh_label.grid(row=0, column=2, sticky=(tk.W, tk.E))
         
         # Configure status bar grid
         self.status_frame.columnconfigure(0, weight=1)
         self.status_frame.columnconfigure(1, weight=1)
+        self.status_frame.columnconfigure(2, weight=1)
         
     def _on_refresh_clicked(self):
         """Handle refresh button click."""
@@ -176,13 +194,20 @@ class MainWindow:
             
     def set_portfolio_table(self, table_widget):
         """Set the portfolio table widget."""
-        # Remove placeholder if it exists
-        for widget in self.table_frame.winfo_children():
-            widget.destroy()
-            
-        # Add the actual table
+        # Add the actual table (placeholder should already be removed)
         self.portfolio_table = table_widget
         self.portfolio_table.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
+        
+    def show_loading(self, message: str = "Loading..."):
+        """Show loading indicator."""
+        self.loading_label.config(text=f"⟳ {message}")
+        self.loading_label.grid(row=0, column=5, padx=(10, 0))
+        self.refresh_button.config(state="disabled")
+        
+    def hide_loading(self):
+        """Hide loading indicator."""
+        self.loading_label.grid_remove()
+        self.refresh_button.config(state="normal")
         
     def update_status(self, message: str):
         """Update the status bar message."""
@@ -191,6 +216,39 @@ class MainWindow:
     def update_last_refresh(self, timestamp: str):
         """Update the last refresh timestamp."""
         self.last_refresh_label.config(text=f"Last refresh: {timestamp}")
+    
+    def update_total_portfolio_value(self, total_value: float):
+        """Update the total portfolio value display."""
+        self.total_value_label.config(text=f"Total portfolio value: ${total_value:,.2f}")
+        
+    def update_allocation_status(self, total_allocation: float, status: str):
+        """Update the allocation status indicator."""
+        if status == "equal":
+            color = "green"
+            indicator = "✓"
+        elif status == "above":
+            color = "red"
+            indicator = "⚠"
+        else:  # under
+            color = "orange"
+            indicator = "⚠"
+            
+        allocation_text = f"{indicator} Allocations: {total_allocation:.1f}%"
+        
+        # Update status with allocation info
+        if hasattr(self, 'allocation_label'):
+            self.allocation_label.config(text=allocation_text, foreground=color)
+        else:
+            # Create allocation label if it doesn't exist
+            self.allocation_label = ttk.Label(
+                self.status_frame,
+                text=allocation_text,
+                foreground=color,
+                relief=tk.SUNKEN,
+                anchor=tk.CENTER
+            )
+            self.allocation_label.grid(row=0, column=3, sticky=(tk.W, tk.E), padx=(5, 0))
+            self.status_frame.columnconfigure(3, weight=1)
         
     def show_error(self, title: str, message: str):
         """Show an error dialog."""
