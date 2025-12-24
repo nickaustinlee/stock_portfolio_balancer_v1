@@ -1,140 +1,140 @@
 # Stock Portfolio Balancer
 
-A desktop application for managing stock portfolios with target allocation percentages and rebalancing recommendations.
+A simple desktop application for managing your stock portfolio with target allocation percentages and automatic rebalancing recommendations.
 
 ![Stock Portfolio Balancer Screenshot](product_screenshot.png)
 
-## Features
+## What It Does
 
-- **Portfolio Management**: Add, edit, and remove stock holdings
-- **Target Allocations**: Set target allocation percentages for each stock
-- **Real-time Calculations**: Automatic calculation of current allocations, target values, and rebalancing actions
-- **Stock Price Integration**: Fetch real-time prices from Yahoo Finance API
-- **Manual & Auto Refresh**: Manual price refresh with optional 60-second auto-refresh
-- **Rebalancing Recommendations**: Buy/sell recommendations with optional share rounding
-- **Data Persistence**: Automatic saving and loading of portfolio data
-- **CSV Export**: Export portfolio data with timestamped filenames
-- **Dark Mode**: Toggle between light and dark themes
-- **Error Handling**: Graceful error handling with user-friendly messages
+This app helps you maintain your desired stock portfolio allocation by:
+- Tracking your current stock holdings and their values
+- Letting you set target allocation percentages for each stock
+- Showing you exactly how many shares to buy or sell to reach your targets
+- Fetching real-time stock prices automatically
+- Exporting your portfolio data to spreadsheets
 
-## Requirements
+## Key Features
 
-- Python 3.8+
-- tkinter (usually included with Python)
-- yfinance
-- hypothesis (for testing)
-- pytest (for testing)
+- **Easy Portfolio Management**: Add stocks by ticker symbol, enter your share quantities
+- **Target Allocations**: Set what percentage of your portfolio each stock should represent
+- **Smart Rebalancing**: Get precise buy/sell recommendations to reach your target allocations
+- **Live Stock Prices**: Automatic price updates from Yahoo Finance
+- **Auto-Refresh**: Optional 60-second price updates to keep data current
+- **Portfolio Sorting**: Click column headers to sort by price, quantity, allocation, etc.
+- **Total Value Display**: See your complete portfolio value at a glance
+- **Data Export**: Save your portfolio to CSV files for spreadsheet analysis
+- **Dark Mode**: Easy on the eyes with a sleek dark interface (default)
+- **Data Persistence**: Your portfolio is automatically saved and restored
 
-## Installation
+## System Requirements
 
-1. Clone the repository:
+- **Python 3.8 or newer** (most computers have this already)
+- **Internet connection** (for fetching stock prices)
+
+## Quick Start
+
+### Step 1: Download
 ```bash
 git clone git@github.com:nickaustinlee/stock_portfolio_balancer_v1.git
 cd stock_portfolio_balancer_v1
 ```
 
-2. Create and activate a virtual environment:
+### Step 2: Install
 ```bash
+# Create a clean environment for the app
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install required components (just one library!)
+pip install -r requirements-user.txt
 ```
 
-3. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
-
-## Usage
-
-Run the application:
+### Step 3: Run
 ```bash
 python src/main.py
 ```
 
-**Debug Mode:**
-For troubleshooting and development, enable debug mode for verbose logging:
-```bash
-# Using command line flag
-python src/main.py --debug
-# or
-python src/main.py -d
+That's it! The app will open and you can start managing your portfolio.
 
-# Using environment variable
-STOCK_TOOL_DEBUG=1 python src/main.py
+## How to Use
+
+### Getting Started
+1. **Add Your Stocks**: 
+   - Enter a stock ticker (like AAPL, GOOGL, TSLA) 
+   - Enter how many shares you own
+   - Click "Add"
+
+2. **Set Your Targets**: 
+   - Double-click the "Target %" column for each stock
+   - Enter what percentage of your portfolio it should be (like 25 for 25%)
+
+3. **Get Recommendations**: 
+   - Click "Refresh Prices" to get current stock prices
+   - Look at the "Rebalance Action" column to see what to buy or sell
+
+4. **Stay Updated**: 
+   - Turn on "Auto-refresh (60s)" to keep prices current
+   - Your portfolio value updates automatically
+
+### Pro Tips
+- **Sorting**: Click any column header to sort your stocks by that value
+- **Exporting**: Use "Export to CSV" to analyze your data in Excel or Google Sheets
+- **Themes**: Toggle between dark and light mode in the menu
+- **Whole Shares**: Check "Round to whole shares" if you can't buy fractional shares
+
+## Troubleshooting
+
+**"No module named '_tkinter'" error:**
+- **Mac**: `brew install python-tk`
+- **Ubuntu/Linux**: `sudo apt-get install python3-tk`  
+- **Windows**: Should work automatically with standard Python
+
+**Can't connect to get stock prices:**
+- Check your internet connection
+- Some corporate networks block financial data - try from home
+
+**App won't start:**
+- Make sure you're using Python 3.8 or newer: `python --version`
+- Try using `python3` instead of `python`
+
+---
+
+## For Developers
+
+If you want to contribute to this project or run the test suite:
+
+### Development Setup
+```bash
+# Install all development dependencies
+pip install -r requirements.txt
 ```
 
-### Troubleshooting
-
-**If you get a "ModuleNotFoundError: No module named '_tkinter'" error:**
-
-- **macOS**: `brew install python-tk` (if using Homebrew Python)
-- **Ubuntu/Debian**: `sudo apt-get install python3-tk`
-- **Windows**: tkinter should be included with standard Python installation
-- **Alternative**: Use the system Python instead of a virtual environment Python
-
-### Basic Workflow
-
-1. **Add Holdings**: Enter ticker symbol and quantity, click "Add"
-2. **Set Target Allocations**: Double-click on target allocation cells to edit
-3. **Refresh Prices**: Click "Refresh Prices" to get current market prices
-4. **View Recommendations**: See buy/sell recommendations in the "Rebalance Action" column
-5. **Export Data**: Click "Export to CSV" to save portfolio data
-
-### Controls
-
-- **Refresh Prices**: Manually fetch current stock prices
-- **Auto-refresh (60s)**: Enable automatic price updates every 60 seconds
-- **Round to whole shares**: Toggle between whole shares and fractional shares in recommendations
-- **Dark mode**: Switch between light and dark themes
-- **Export to CSV**: Export current portfolio data to timestamped CSV file
-
-### New Features
-
-- **Total Portfolio Value**: Displayed at the bottom of the interface showing the sum of all holdings
-- **Column Sorting**: Click any numerical column header to sort (Price, Quantity, Target %, etc.). Click again to reverse sort direction. Headers show ↑/↓ arrows to indicate sort direction
-- **Enhanced Input**: Target allocation accepts both "50" and "50%" formats
-- **Debug Mode**: Enable verbose logging for troubleshooting with `--debug` flag or `STOCK_TOOL_DEBUG=1` environment variable
-
-## Architecture
-
-The application follows Model-View-Controller (MVC) architecture:
-
-- **Models** (`src/models/`): Portfolio and Holding data models
-- **Views** (`src/gui/`): Tkinter-based user interface components
-- **Controllers** (`src/controllers/`): Application logic and coordination
-- **Services** (`src/services/`): Stock price fetching and data persistence
-
-## Testing
-
-Run the test suite:
+### Running Tests
 ```bash
 python -m pytest tests/ -v
 ```
 
-The project includes comprehensive property-based tests using Hypothesis to ensure correctness across a wide range of inputs and edge cases.
-
-## Development
+### Debug Mode
+For troubleshooting and development:
+```bash
+python src/main.py --debug
+# or
+STOCK_TOOL_DEBUG=1 python src/main.py
+```
 
 ### Project Structure
-
 ```
 ├── src/
-│   ├── controllers/          # Application controllers
-│   ├── gui/                  # GUI components
+│   ├── controllers/          # Application logic
+│   ├── gui/                  # User interface
 │   ├── models/               # Data models
 │   ├── services/             # External services
-│   └── main.py              # Application entry point
+│   └── main.py              # App entry point
 ├── tests/                   # Test suite
-├── .kiro/specs/            # Feature specifications
-└── requirements.txt        # Python dependencies
+└── requirements.txt        # All dependencies
 ```
 
-### Specifications
-
-The project was developed using specification-driven development. See `.kiro/specs/stock-allocation-tool/` for:
-- `requirements.md`: Detailed requirements using EARS patterns
-- `design.md`: System design and architecture
-- `tasks.md`: Implementation task breakdown
+The project uses comprehensive property-based testing with Hypothesis and follows MVC architecture patterns.
 
 ## License
 
