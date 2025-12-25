@@ -1,6 +1,6 @@
 # Stock Portfolio Balancer
 
-A simple desktop application for managing your stock portfolio with target allocation percentages and automatic rebalancing recommendations.
+A professional desktop application for managing your stock portfolio with target allocation percentages and automatic rebalancing recommendations. Available as both a Python application and standalone executable.
 
 ![Stock Portfolio Balancer Screenshot](product_screenshot.png)
 
@@ -25,36 +25,108 @@ This app helps you maintain your desired stock portfolio allocation by:
 - **Data Export**: Save your portfolio to CSV files for spreadsheet analysis
 - **Dark Mode**: Easy on the eyes with a sleek dark interface (default)
 - **Data Persistence**: Your portfolio is automatically saved and restored
+- **Professional Packaging**: Available as standalone executable (no Python required)
 
 ## System Requirements
 
-- **Python 3.8 or newer** (most computers have this already)
+### For Python Version
+- **Python 3.8 or newer**
 - **Internet connection** (for fetching stock prices)
 
-## Quick Start
+### For Standalone App
+- **macOS 10.13+**, **Windows 10+**, or **Linux (Ubuntu 18.04+)**
+- **Internet connection** (for fetching stock prices)
+- **No Python installation required**
 
-### Step 1: Download
+## Installation & Usage
+
+You have **two options** for running this application:
+
+### Option 1: Python Application (Recommended for Development)
+
+**Quick and easy - runs directly from source code**
+
+#### Step 1: Download
 ```bash
 git clone git@github.com:nickaustinlee/stock_portfolio_balancer_v1.git
 cd stock_portfolio_balancer_v1
 ```
 
-### Step 2: Install
+#### Step 2: Install Dependencies
 ```bash
 # Create a clean environment for the app
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 
-# Install required components (just one library!)
+# Install required components
 pip install -r requirements-user.txt
 ```
 
-### Step 3: Run
+#### Step 3: Run
 ```bash
 python src/main.py
 ```
 
-That's it! The app will open and you can start managing your portfolio.
+**Advantages:**
+- ⚡ Fast startup (no extraction overhead)
+- 🔧 Easy to modify and customize
+- 🐛 Better for debugging and development
+- 📦 Smaller download size
+
+### Option 2: Standalone Executable (Recommended for End Users)
+
+**Professional app bundle - no Python installation required**
+
+#### Step 1: Download Source
+```bash
+git clone git@github.com:nickaustinlee/stock_portfolio_balancer_v1.git
+cd stock_portfolio_balancer_v1
+```
+
+#### Step 2: Build Executable
+```bash
+# Automated setup (creates virtual environment and installs dependencies)
+python setup_build_env.py
+
+# Activate the build environment
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Build the standalone application
+python build.py
+```
+
+#### Step 3: Run the App
+**macOS:**
+```bash
+# Double-click the app bundle (recommended)
+open dist/StockAllocationTool.app
+
+# Or run from terminal
+./dist/StockAllocationTool/StockAllocationTool
+```
+
+**Windows:**
+```bash
+# Double-click the executable
+dist\StockAllocationTool\StockAllocationTool.exe
+```
+
+**Linux:**
+```bash
+# Run the executable
+./dist/StockAllocationTool/StockAllocationTool
+```
+
+**Advantages:**
+- 🎨 Professional splash screen with loading animation
+- 📱 No Python installation required for end users
+- 🚀 Easy distribution to non-technical users
+- 💼 Professional user experience
+
+#### Build Documentation
+For detailed build instructions, troubleshooting, and distribution guidance, see:
+- **[BUILD.md](BUILD.md)** - Comprehensive build instructions
+- **[PACKAGING.md](PACKAGING.md)** - Distribution and packaging summary
 
 ## How to Use
 
@@ -84,58 +156,119 @@ That's it! The app will open and you can start managing your portfolio.
 
 ## Troubleshooting
 
+### Python Version Issues
 **"No module named '_tkinter'" error:**
 - **Mac**: `brew install python-tk`
 - **Ubuntu/Linux**: `sudo apt-get install python3-tk`  
 - **Windows**: Should work automatically with standard Python
 
-**Can't connect to get stock prices:**
-- Check your internet connection
-- Some corporate networks block financial data - try from home
-
 **App won't start:**
 - Make sure you're using Python 3.8 or newer: `python --version`
 - Try using `python3` instead of `python`
 
----
+### Standalone App Issues
+**macOS: "App can't be opened" security warning:**
+- Right-click the app → "Open" → Click "Open" in the dialog
+- Or run: `xattr -d com.apple.quarantine StockAllocationTool.app`
+
+**Windows: Antivirus blocking the executable:**
+- This is common with PyInstaller apps - add an exception for the executable
+- The app is safe - it's just not code-signed
+
+**Slow startup on first run:**
+- The standalone app extracts dependencies on first run
+- Subsequent runs will be faster
+
+### Network Issues
+**Can't connect to get stock prices:**
+- Check your internet connection
+- Some corporate networks block financial data - try from home
+
+## Future Features
+
+The following features are being considered for future releases:
+
+- **📁 Multiple Portfolio Files**: Open and manage different portfolio JSON files
+- **💾 File System Integration**: Native file dialogs for opening/saving portfolios
+- **📊 Portfolio Comparison**: Compare performance across different portfolio files
+- **🔄 Portfolio Templates**: Save and reuse allocation strategies
+- **📈 Historical Tracking**: Track portfolio performance over time
 
 ## For Developers
 
-If you want to contribute to this project or run the test suite:
-
 ### Development Setup
 ```bash
-# Install all development dependencies
+# Install all development dependencies (includes testing frameworks)
 pip install -r requirements.txt
 ```
 
 ### Running Tests
 ```bash
+# Run the complete test suite (78 tests)
 python -m pytest tests/ -v
+
+# Run specific test categories
+python -m pytest tests/test_portfolio_properties.py -v
 ```
 
 ### Debug Mode
 For troubleshooting and development:
 ```bash
+# Python version
 python src/main.py --debug
 # or
 STOCK_TOOL_DEBUG=1 python src/main.py
+
+# Standalone version (shows debug info in Console.app on macOS)
+STOCK_TOOL_DEBUG=1 open dist/StockAllocationTool.app
+```
+
+### Build System
+The project includes a comprehensive build system:
+
+```bash
+# Automated environment setup
+python setup_build_env.py
+
+# Build with verification
+python build.py
+
+# Test build configuration
+python test_build_config.py
+
+# Verify complete build
+python verify_build_complete.py
 ```
 
 ### Project Structure
 ```
 ├── src/
 │   ├── controllers/          # Application logic
-│   ├── gui/                  # User interface
-│   ├── models/               # Data models
-│   ├── services/             # External services
-│   └── main.py              # App entry point
-├── tests/                   # Test suite
-└── requirements.txt        # All dependencies
+│   ├── gui/                  # User interface components
+│   │   └── splash_screen.py  # Professional loading screen
+│   ├── models/               # Data models (Portfolio, Holding)
+│   ├── services/             # External services (stock prices, storage)
+│   └── main.py              # Development entry point
+├── tests/                   # Comprehensive test suite (78 tests)
+├── main.py                  # Production entry point (PyInstaller)
+├── build.py                 # Automated build script
+├── stock-allocation-tool.spec # PyInstaller configuration
+├── BUILD.md                 # Detailed build instructions
+├── PACKAGING.md             # Distribution guide
+└── requirements.txt         # All dependencies
 ```
 
-The project uses comprehensive property-based testing with Hypothesis and follows MVC architecture patterns.
+### Architecture
+- **MVC Pattern**: Clean separation of concerns
+- **Property-Based Testing**: Comprehensive validation using Hypothesis
+- **Threaded UI**: Responsive interface during heavy operations
+- **Cross-Platform**: Works on macOS, Windows, and Linux
+- **Professional Packaging**: PyInstaller with optimized startup performance
 
 ## License
 
 MIT License - see LICENSE file for details.
+
+---
+
+**Choose your preferred way to run the app and start managing your portfolio today!**
