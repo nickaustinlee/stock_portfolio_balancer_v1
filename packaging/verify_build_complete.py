@@ -14,25 +14,40 @@ from pathlib import Path
 
 def verify_files_exist():
     """Verify all required build files exist."""
-    required_files = [
+    # Files in packaging directory
+    packaging_files = [
         'setup_build_env.py',
         'build.py', 
         'stock-allocation-tool.spec',
         'test_build_config.py',
         'BUILD.md',
         'PACKAGING.md',
-        'requirements.txt',
-        'main.py'
+    ]
+    
+    # Files in project root
+    root_files = [
+        '../requirements.txt',
+        '../main.py'
     ]
     
     print("Checking required files...")
     all_exist = True
     
-    for file_path in required_files:
+    # Check packaging files (relative to packaging directory)
+    for file_path in packaging_files:
         if Path(file_path).exists():
             print(f"✅ {file_path}")
         else:
             print(f"❌ {file_path}")
+            all_exist = False
+    
+    # Check root files (relative to packaging directory)
+    for file_path in root_files:
+        display_name = file_path.replace('../', '')
+        if Path(file_path).exists():
+            print(f"✅ {display_name}")
+        else:
+            print(f"❌ {display_name}")
             all_exist = False
     
     return all_exist
@@ -40,7 +55,7 @@ def verify_files_exist():
 
 def verify_venv_setup():
     """Verify virtual environment is properly set up."""
-    venv_path = Path('venv')
+    venv_path = Path('../venv')  # Look in parent directory
     
     if not venv_path.exists():
         print("❌ Virtual environment not found")
@@ -65,9 +80,9 @@ def verify_venv_setup():
 def verify_dependencies():
     """Verify dependencies are installed in virtual environment."""
     if sys.platform == 'win32':
-        python_exe = 'venv/Scripts/python.exe'
+        python_exe = '../venv/Scripts/python.exe'
     else:
-        python_exe = 'venv/bin/python'
+        python_exe = '../venv/bin/python'
     
     test_script = """
 import sys
@@ -105,9 +120,9 @@ else:
 def verify_build_works():
     """Verify that the build process works."""
     if sys.platform == 'win32':
-        python_exe = 'venv/Scripts/python.exe'
+        python_exe = '../venv/Scripts/python.exe'
     else:
-        python_exe = 'venv/bin/python'
+        python_exe = '../venv/bin/python'
     
     print("Testing build configuration...")
     
@@ -125,7 +140,7 @@ def verify_build_works():
 
 def verify_executable_exists():
     """Check if executable was built successfully."""
-    dist_path = Path('dist')
+    dist_path = Path('../dist')  # Look in parent directory
     
     if not dist_path.exists():
         print("ℹ️  No dist/ directory found (executable not built yet)")
@@ -210,9 +225,9 @@ def main():
         if sys.platform == 'win32':
             print("  venv\\Scripts\\python build.py")
         else:
-            print("  venv/bin/python build.py")
+            print("  venv/bin/python packaging/build.py")
         print("\nTo set up a new environment:")
-        print("  python setup_build_env.py")
+        print("  python packaging/setup_build_env.py")
         return True
     else:
         print("❌ Some checks failed. Please review the issues above.")

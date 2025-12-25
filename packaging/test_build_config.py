@@ -15,7 +15,8 @@ def test_main_entry_point():
     """Test that the main entry point can be imported."""
     try:
         # Test that main.py exists and can be executed
-        main_path = Path('main.py')
+        # Look in parent directory since we're running from packaging/
+        main_path = Path('../main.py')
         if not main_path.exists():
             print("❌ main.py not found")
             return False
@@ -24,7 +25,7 @@ def test_main_entry_point():
         
         # Check if we're in a virtual environment with dependencies
         try:
-            sys.path.insert(0, 'src')
+            sys.path.insert(0, '../src')
             from controllers.portfolio_controller import PortfolioController
             from utils.debug import logger
             print("✅ Main application components can be imported")
@@ -46,6 +47,7 @@ def test_main_entry_point():
 def test_build_script():
     """Test that the build script is properly configured."""
     try:
+        # Look for build.py in current directory (packaging/)
         build_path = Path('build.py')
         if not build_path.exists():
             print("❌ build.py not found")
@@ -76,6 +78,7 @@ def test_build_script():
 def test_spec_file():
     """Test that the PyInstaller spec file is valid."""
     try:
+        # Look for spec file in current directory (packaging/)
         spec_path = Path('stock-allocation-tool.spec')
         if not spec_path.exists():
             print("❌ stock-allocation-tool.spec not found")
@@ -90,7 +93,7 @@ def test_spec_file():
             'Analysis',
             'PYZ', 
             'EXE',
-            'main.py',
+            '../main.py',  # Updated path
             'yfinance',
             'tkinter'
         ]
@@ -111,7 +114,8 @@ def test_spec_file():
 def test_requirements():
     """Test that requirements.txt contains packaging dependencies."""
     try:
-        req_path = Path('requirements.txt')
+        # Look for requirements.txt in parent directory
+        req_path = Path('../requirements.txt')
         if not req_path.exists():
             print("❌ requirements.txt not found")
             return False
@@ -138,6 +142,7 @@ def test_requirements():
 def test_documentation():
     """Test that build documentation exists."""
     try:
+        # Look for BUILD.md in current directory (packaging/)
         doc_path = Path('BUILD.md')
         if not doc_path.exists():
             print("❌ BUILD.md not found")
@@ -197,7 +202,7 @@ def main():
         print("✅ All build configuration tests passed!")
         print("\nNext steps:")
         print("1. Install PyInstaller: pip install pyinstaller")
-        print("2. Run build: python build.py")
+        print("2. Run build: python packaging/build.py")
         print("3. Test executable in dist/ directory")
         return True
     else:
