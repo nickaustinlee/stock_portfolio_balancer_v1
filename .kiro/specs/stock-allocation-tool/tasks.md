@@ -173,7 +173,21 @@ This implementation plan converts the stock allocation tool design into discrete
     - **Property 10: Rebalance Action Direction and Rounding**
     - **Validates: Requirements 6.6, 6.7, 6.8, 6.9, 6.10**
 
-- [x] 13. Final checkpoint - Complete application
+- [x] 13. Add application packaging support
+  - [x] 13.1 Create main.py entry point
+    - Create standalone entry point for the application
+    - Add proper path handling for packaged execution
+    - Ensure all imports work correctly when packaged
+    - _Requirements: Application packaging support_
+
+  - [x] 13.2 Add PyInstaller configuration
+    - Create build script for creating standalone executable
+    - Add requirements.txt for packaging dependencies
+    - Create build instructions and documentation
+    - Test executable creation and functionality
+    - _Requirements: Application packaging support_
+
+- [x] 14. Final checkpoint - Complete application
   - Ensure all tests pass, ask the user if questions arise.
 
 ## Notes

@@ -4,7 +4,8 @@ Provides the primary interface with controls and portfolio table.
 """
 
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import ttk
+import tkinter.messagebox as messagebox
 from typing import Optional, Callable
 
 

@@ -389,6 +389,33 @@ The testing strategy employs both unit tests and property-based tests to ensure 
 - Simulate various error conditions
 - Test error handling without external dependencies
 
+### Application Packaging
+
+The application supports packaging into a standalone executable for personal use without requiring a Python installation or terminal window.
+
+**Packaging Strategy**:
+- **PyInstaller**: Creates single executable with all dependencies bundled
+- **Windowed Mode**: Runs without terminal window (GUI-only)
+- **Entry Point**: Clean main.py entry point for packaging
+- **Path Handling**: Proper resource path resolution for packaged execution
+
+**Build Process**:
+```bash
+# Install packaging dependencies
+pip install pyinstaller
+
+# Create standalone executable
+pyinstaller --onefile --windowed --name "Stock Allocation Tool" src/main.py
+
+# Result: dist/Stock Allocation Tool.exe (Windows) or dist/Stock Allocation Tool (macOS/Linux)
+```
+
+**Benefits**:
+- No terminal window required
+- No Python installation needed on target machine
+- Double-click to run like any native application
+- All dependencies bundled automatically
+
 ### Test Organization
 
 ```
