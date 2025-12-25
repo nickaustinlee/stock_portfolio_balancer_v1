@@ -24,11 +24,11 @@ debug = os.environ.get('PYINSTALLER_DEBUG', '').lower() in ('1', 'true', 'yes')
 
 # Analysis phase - collect all Python files and dependencies
 a = Analysis(
-    ['main.py'],  # Entry point
+    ['../main.py'],  # Entry point - relative to packaging directory
     pathex=[],
     binaries=[],
     datas=[
-        ('src', 'src'),  # Include source directory
+        ('../src', 'src'),  # Include source directory - relative to packaging directory
     ],
     hiddenimports=[
         'yfinance',
