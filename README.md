@@ -2,7 +2,7 @@
 
 A professional desktop application for managing your stock portfolio with target allocation percentages and automatic rebalancing recommendations. Available as both a Python application and standalone executable.
 
-![Stock Portfolio Balancer Screenshot](product_screenshot.png)
+![Stock Portfolio Balancer Screenshot](./docs/product_screenshot.png)
 
 ## What It Does
 
@@ -33,10 +33,9 @@ This app helps you maintain your desired stock portfolio allocation by:
 - **Python 3.8 or newer**
 - **Internet connection** (for fetching stock prices)
 
-### For Standalone App
-- **macOS 10.13+**, **Windows 10+**, or **Linux (Ubuntu 18.04+)**
-- **Internet connection** (for fetching stock prices)
-- **No Python installation required**
+### For Standalone Binary
+- **Python only needed to build the binary**
+- **End users need no Python installation**
 
 ## Installation & Usage
 
@@ -73,9 +72,9 @@ python src/main.py
 - 🐛 Better for debugging and development
 - 📦 Smaller download size
 
-### Option 2: Standalone Executable (Recommended for End Users)
+### Option 2: Standalone Binary (Recommended for End Users)
 
-**Professional app bundle - no Python installation required**
+**Self-contained executable - Python only needed to build**
 
 #### Step 1: Download Source
 ```bash
@@ -83,22 +82,22 @@ git clone git@github.com:nickaustinlee/stock_portfolio_balancer_v1.git
 cd stock_portfolio_balancer_v1
 ```
 
-#### Step 2: Build Executable
+#### Step 2: Build Binary
 ```bash
 # Automated setup (creates virtual environment and installs dependencies)
-python setup_build_env.py
+python packaging/setup_build_env.py
 
 # Activate the build environment
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 
-# Build the standalone application
-python build.py
+# Build the standalone binary
+python packaging/build.py
 ```
 
-#### Step 3: Run the App
+#### Step 3: Run the Binary
 **macOS:**
 ```bash
-# Double-click the app bundle (recommended)
+# Double-click the binary (recommended)
 open dist/StockAllocationTool.app
 
 # Or run from terminal
@@ -113,7 +112,7 @@ dist\StockAllocationTool\StockAllocationTool.exe
 
 **Linux:**
 ```bash
-# Run the executable
+# Run the binary
 ./dist/StockAllocationTool/StockAllocationTool
 ```
 
@@ -125,8 +124,8 @@ dist\StockAllocationTool\StockAllocationTool.exe
 
 #### Build Documentation
 For detailed build instructions, troubleshooting, and distribution guidance, see:
-- **[BUILD.md](BUILD.md)** - Comprehensive build instructions
-- **[PACKAGING.md](PACKAGING.md)** - Distribution and packaging summary
+- **[packaging/BUILD.md](packaging/BUILD.md)** - Comprehensive build instructions
+- **[packaging/PACKAGING.md](packaging/PACKAGING.md)** - Distribution and packaging summary
 
 ## How to Use
 
@@ -166,17 +165,17 @@ For detailed build instructions, troubleshooting, and distribution guidance, see
 - Make sure you're using Python 3.8 or newer: `python --version`
 - Try using `python3` instead of `python`
 
-### Standalone App Issues
-**macOS: "App can't be opened" security warning:**
-- Right-click the app → "Open" → Click "Open" in the dialog
+### Standalone Binary Issues
+**macOS: "Binary can't be opened" security warning:**
+- Right-click the binary → "Open" → Click "Open" in the dialog
 - Or run: `xattr -d com.apple.quarantine StockAllocationTool.app`
 
-**Windows: Antivirus blocking the executable:**
-- This is common with PyInstaller apps - add an exception for the executable
-- The app is safe - it's just not code-signed
+**Windows: Antivirus blocking the binary:**
+- This is common with PyInstaller binaries - add an exception for the executable
+- The binary is safe - it's just not code-signed
 
 **Slow startup on first run:**
-- The standalone app extracts dependencies on first run
+- The standalone binary extracts dependencies on first run
 - Subsequent runs will be faster
 
 ### Network Issues
@@ -228,16 +227,16 @@ The project includes a comprehensive build system:
 
 ```bash
 # Automated environment setup
-python setup_build_env.py
+python packaging/setup_build_env.py
 
 # Build with verification
-python build.py
+python packaging/build.py
 
 # Test build configuration
-python test_build_config.py
+python packaging/test_build_config.py
 
 # Verify complete build
-python verify_build_complete.py
+python packaging/verify_build_complete.py
 ```
 
 ### Project Structure
@@ -250,11 +249,15 @@ python verify_build_complete.py
 │   ├── services/             # External services (stock prices, storage)
 │   └── main.py              # Development entry point
 ├── tests/                   # Comprehensive test suite (78 tests)
-├── main.py                  # Production entry point (PyInstaller)
-├── build.py                 # Automated build script
-├── stock-allocation-tool.spec # PyInstaller configuration
-├── BUILD.md                 # Detailed build instructions
-├── PACKAGING.md             # Distribution guide
+├── packaging/               # Build system and packaging
+│   ├── build.py             # Automated build script
+│   ├── setup_build_env.py   # Environment setup
+│   ├── stock-allocation-tool.spec # PyInstaller configuration
+│   ├── BUILD.md             # Detailed build instructions
+│   └── PACKAGING.md         # Distribution guide
+├── docs/                    # Documentation and assets
+│   ├── product_screenshot.png
+│   └── stock_tool.drawio.png
 └── requirements.txt         # All dependencies
 ```
 
